@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Dice</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { text-align: center; font-family: Arial; background: #1e1e2f; color: white; margin-top: 40px; }
+        input, button { padding: 10px; margin: 10px; font-size: 16px; border-radius: 10px; border: none; }
+        button { background: #ffcc00; cursor: pointer; }
+        .result { font-size: 24px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>🎲 Угадай число (1-6)</h1>
+    <input type="number" id="bet" placeholder="Ставка" min="1">
+    <input type="number" id="guess" placeholder="Твоё число" min="1" max="6">
+    <button onclick="rollDice()">Кинуть кубик</button>
+    <div class="result" id="result"></div>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+
+        function rollDice() {
+            let bet = parseInt(document.getElementById('bet').value);
+            let guess = parseInt(document.getElementById('guess').value);
+            if (isNaN(bet) || bet <= 0) { alert("Введи ставку"); return; }
+            if (isNaN(guess) || guess < 1 || guess > 6) { alert("Число от 1 до 6"); return; }
+
+            let dice = Math.floor(Math.random() * 6) + 1;
+            let win = (dice === guess) ? 1 : 0;
+            let resultText = win ? `Выпало ${dice}! Вы выиграли!` : `Выпало ${dice}. Проигрыш.`;
+            document.getElementById('result').innerHTML = resultText;
+
+            // Отправляем данные боту: игра|user_id|ставка|win
+            let user_id = tg.initDataUnsafe?.user?.id;
+            if (user_id) {
+                tg.sendData(`dice|${user_id}|${bet}|${win}`);
+            }
+        }
+    </script>
+</body>
+</html>

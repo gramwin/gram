@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Рулетка</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { text-align: center; font-family: Arial; background: #1e1e2f; color: white; margin-top: 40px; }
+        input, button { padding: 10px; margin: 10px; font-size: 16px; border-radius: 10px; border: none; }
+        button { background: #ffcc00; cursor: pointer; }
+        .result { font-size: 24px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>🎡 Рулетка (чёт / нечёт)</h1>
+    <input type="number" id="bet" placeholder="Ставка" min="1">
+    <select id="choice">
+        <option value="even">Чёт</option>
+        <option value="odd">Нечёт</option>
+    </select>
+    <button onclick="spin()">Крутить</button>
+    <div class="result" id="result"></div>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+
+        function spin() {
+            let bet = parseInt(document.getElementById('bet').value);
+            let choice = document.getElementById('choice').value;
+            if (isNaN(bet) || bet <= 0) { alert("Введи ставку"); return; }
+
+            let number = Math.floor(Math.random() * 36);
+            let isEven = (number % 2 === 0);
+            let win = (choice === "even" && isEven) || (choice === "odd" && !isEven) ? 1 : 0;
+            let resultText = `Выпало ${number}. ` + (win ? "Поздравляю, вы выиграли!" : "К сожалению, проигрыш.");
+            document.getElementById('result').innerHTML = resultText;
+
+            let user_id = tg.initDataUnsafe?.user?.id;
+            if (user_id) {
+                tg.sendData(`roulette|${user_id}|${bet}|${win}`);
+            }
+        }
+    </script>
+</body>
+</html>
